@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.compare.mapper.BizCompareAccessLogMapper">
+
+    <resultMap type="com.ruoyi.compare.domain.BizCompareAccessLog" id="BizCompareAccessLogResult">
+        <id     property="id"              column="id"                />
+        <result property="traceId"         column="trace_id"          />
+        <result property="userId"          column="user_id"           />
+        <result property="loginName"       column="login_name"        />
+        <result property="ipAddress"       column="ip_address"        />
+        <result property="requestUri"      column="request_uri"       />
+        <result property="requestMethod"   column="request_method"    />
+        <result property="userAgent"       column="user_agent"        />
+        <result property="queryName"       column="query_name"        />
+        <result property="queryIdCard"     column="query_id_card"     />
+        <result property="queryIdCardHash" column="query_id_card_hash"/>
+        <result property="queryParams"     column="query_params"      />
+        <result property="matchCount"      column="match_count"       />
+        <result property="isInSchool"      column="is_in_school"      />
+        <result property="studentType"     column="student_type"      />
+        <result property="isTargetStudent" column="is_target_student" />
+        <result property="hasTransfer"     column="has_transfer"      />
+        <result property="conflictFlag"    column="conflict_flag"     />
+        <result property="needReview"      column="need_review"       />
+        <result property="resultCode"      column="result_code"       />
+        <result property="resultMsg"       column="result_msg"        />
+        <result property="resultJson"      column="result_json"       />
+        <result property="costMs"          column="cost_ms"           />
+        <result property="requestTime"     column="request_time"      />
+        <result property="createTime"      column="create_time"       />
+    </resultMap>
+
+    <sql id="selectBizCompareAccessLogVo">
+        select id, trace_id, user_id, login_name, ip_address, request_uri,
+               request_method, user_agent, query_name, query_id_card,
+               query_id_card_hash, query_params, match_count, is_in_school,
+               student_type, is_target_student, has_transfer, conflict_flag,
+               need_review, result_code, result_msg, result_json, cost_ms,
+               request_time, create_time
+        from biz_compare_access_log
+    </sql>
+
+    <select id="selectBizCompareAccessLogById" parameterType="Long" resultMap="BizCompareAccessLogResult">
+        <include refid="selectBizCompareAccessLogVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectBizCompareAccessLogList" parameterType="com.ruoyi.compare.domain.BizCompareAccessLog" resultMap="BizCompareAccessLogResult">
+        <include refid="selectBizCompareAccessLogVo"/>
+        <where>
+            <if test="loginName != null and loginName != ''">
+                and login_name = #{loginName}
+            </if>
+            <if test="ipAddress != null and ipAddress != ''">
+                and ip_address = #{ipAddress}
+            </if>
+            <if test="queryName != null and queryName != ''">
+                and query_name like concat('%', #{queryName}, '%')
+            </if>
+            <if test="queryIdCardHash != null and queryIdCardHash != ''">
+                and query_id_card_hash = #{queryIdCardHash}
+            </if>
+            <if test="resultCode != null and resultCode != ''">
+                and result_code = #{resultCode}
+            </if>
+            <if test="conflictFlag != null and conflictFlag != ''">
+                and conflict_flag = #{conflictFlag}
+            </if>
+            <if test="needReview != null and needReview != ''">
+                and need_review = #{needReview}
+            </if>
+            <if test="params.beginRequestTime != null and params.beginRequestTime != ''">
+                and request_time &gt;= #{params.beginRequestTime}
+            </if>
+            <if test="params.endRequestTime != null and params.endRequestTime != ''">
+                and request_time &lt;= #{params.endRequestTime}
+            </if>
+        </where>
+        order by id desc
+    </select>
+
+    <insert id="insertBizCompareAccessLog" parameterType="com.ruoyi.compare.domain.BizCompareAccessLog" useGeneratedKeys="true" keyProperty="id">
+        insert into biz_compare_access_log (
+            trace_id, user_id, login_name, ip_address, request_uri, request_method,
+            user_agent, query_name, query_id_card, query_id_card_hash, query_params,
+            match_count, is_in_school, student_type, is_target_student, has_transfer,
+            conflict_flag, need_review, result_code, result_msg, result_json,
+            cost_ms, request_time, create_time
+        ) values (
+            #{traceId}, #{userId}, #{loginName}, #{ipAddress}, #{requestUri}, #{requestMethod},
+            #{userAgent}, #{queryName}, #{queryIdCard}, #{queryIdCardHash}, #{queryParams},
+            #{matchCount}, #{isInSchool}, #{studentType}, #{isTargetStudent}, #{hasTransfer},
+            #{conflictFlag}, #{needReview}, #{resultCode}, #{resultMsg}, #{resultJson},
+            #{costMs}, #{requestTime}, now()
+        )
+    </insert>
+
+    <delete id="deleteBizCompareAccessLogByIds" parameterType="Long">
+        delete from biz_compare_access_log where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

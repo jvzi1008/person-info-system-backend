@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.compare.mapper.BizCompareMapper">
+
+    <select id="selectStudentResultByIdNo"
+            resultType="com.ruoyi.compare.domain.vo.StudentResultRow">
+        select
+            'JBXX' as sourceType,
+            trim(both '"' from trim(XM)) as name,
+            trim(ZXSZT) as status,
+            trim(XXMC) as schoolName
+        from xsxj_xs_jbxx_compare_temp_result
+        where SFZJH = #{idNo}
+
+        union
+
+        select
+            'ZXXX' as sourceType,
+            trim(both '"' from trim(XM)) as name,
+            trim(ZXSZT) as status,
+            trim(XXMC) as schoolName
+        from xsxj_xs_zxxx_temp_result
+        where SFZJH = #{idNo}
+    </select>
+
+    <select id="selectTransferByIdNo"
+            resultType="com.ruoyi.compare.domain.vo.TransferRow">
+        select
+            upper(trim(zjhm)) as idNo,
+            trim(xm) as name,
+            zxlx as zxlx,
+            zr_jg_mc as fromSchool,
+            zc_jg_mc as toSchool,
+            zxsqsj as applyTime
+        from xsxj_xs_zxxx_temp
+        where zjhm = #{idNo}
+        order by id
+    </select>
+
+</mapper>
