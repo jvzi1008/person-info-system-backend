@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import com.ruoyi.common.annotation.RateLimiter;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.model.RegisterBody;
+import com.ruoyi.common.enums.LimitType;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.framework.web.service.SysRegisterService;
 import com.ruoyi.system.service.ISysConfigService;
@@ -25,6 +27,10 @@ public class SysRegisterController extends BaseController
     @Autowired
     private ISysConfigService configService;
 
+    /**
+     * 同一 IP 10 分钟内最多注册 5 个账号，防止批量注册
+     */
+    @RateLimiter(time = 600, count = 5, limitType = LimitType.IP)
     @PostMapping("/register")
     public AjaxResult register(@RequestBody RegisterBody user)
     {

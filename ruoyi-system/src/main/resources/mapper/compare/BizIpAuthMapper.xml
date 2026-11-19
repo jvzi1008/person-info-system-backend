@@ -125,13 +125,4 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         delete from biz_ip_auth where user_id = #{userId}
     </delete>
 
-    <update id="disableByUserIds" parameterType="Long">
-        update biz_ip_auth
-        set status = '1'
-        where user_id in
-        <foreach item="id" collection="array" open="(" separator="," close=")">
-            #{id}
-        </foreach>
-    </update>
-
 </mapper>

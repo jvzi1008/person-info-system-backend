@@ -22,5 +22,4 @@ public interface BizIpAuthMapper {
 
     int deleteBizIpAuthByUserId(Long userId);
 
-    int disableByUserIds(Long[] userIds);
 }

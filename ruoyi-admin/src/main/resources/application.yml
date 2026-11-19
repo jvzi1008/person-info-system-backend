@@ -131,6 +131,16 @@ springdoc:
       paths-to-match: '/**'
       packages-to-scan: com.ruoyi.web.controller
 
+# 比对访问日志归档
+compare:
+  log:
+    # 是否启用定时归档
+    enabled: true
+    # 保留天数，超过后转入归档表
+    retention-days: 90
+    # 每天 03:30 执行
+    archive-cron: 0 30 3 * * ?
+
 # 防盗链配置
 referer:
   # 防盗链开关

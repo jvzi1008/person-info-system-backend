@@ -106,6 +106,14 @@ public class SysProfileController extends BaseController
         {
             return error("新密码不能与旧密码相同");
         }
+        if (StringUtils.isEmpty(newPassword) || newPassword.length() < 8 || newPassword.length() > 20)
+        {
+            return error("密码长度必须为8-20位");
+        }
+        if (!newPassword.matches(".*[A-Za-z].*") || !newPassword.matches(".*\\d.*"))
+        {
+            return error("密码必须同时包含字母和数字");
+        }
         newPassword = SecurityUtils.encryptPassword(newPassword);
         if (userService.resetUserPwd(userId, newPassword) > 0)
         {
