@@ -60,6 +60,14 @@ public interface ISysUserService
     public String selectUserRoleGroup(String userName);
 
     /**
+     * 审核用户（1通过 2驳回）
+     *
+     * @param user 用户信息（userId、auditStatus、auditRemark）
+     * @return 结果
+     */
+    public int auditUser(SysUser user);
+
+    /**
      * 根据用户ID查询用户所属岗位组
      * 
      * @param userName 用户名

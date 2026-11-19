@@ -53,6 +53,15 @@ public class UserDetailsServiceImpl implements UserDetailsService
             log.info("登录用户：{} 已被停用.", username);
             throw new ServiceException(MessageUtils.message("user.blocked"));
         }
+        else if (!"1".equals(user.getAuditStatus()))
+        {
+            log.info("登录用户：{} 审核状态：{}", username, user.getAuditStatus());
+            if ("0".equals(user.getAuditStatus()))
+            {
+                throw new ServiceException("账号待审核，请等待管理员通过");
+            }
+            throw new ServiceException("账号审核未通过" + (StringUtils.isNotEmpty(user.getAuditRemark()) ? "：" + user.getAuditRemark() : ""));
+        }
 
         passwordService.validate(user);
 

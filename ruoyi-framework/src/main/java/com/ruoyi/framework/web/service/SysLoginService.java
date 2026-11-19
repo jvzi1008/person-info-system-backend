@@ -51,6 +51,9 @@ public class SysLoginService
     @Autowired
     private ISysConfigService configService;
 
+    @Autowired
+    private com.ruoyi.compare.service.NormalUserLoginService normalUserLoginService;
+
     /**
      * 登录验证
      * 
@@ -95,8 +98,14 @@ public class SysLoginService
         AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_SUCCESS, MessageUtils.message("user.login.success")));
         LoginUser loginUser = (LoginUser) authentication.getPrincipal();
         recordLoginInfo(loginUser.getUserId());
-        // 生成token
-        return tokenService.createToken(loginUser);
+        // 生成token（createToken 会写入登录 IP）
+        String token = tokenService.createToken(loginUser);
+        // 普通用户首次登录自动绑定当前 IP（免审）
+        if (loginUser.getUser() != null && "01".equals(loginUser.getUser().getUserType()))
+        {
+            normalUserLoginService.bindFirstLoginIp(loginUser.getUserId(), loginUser.getUsername(), loginUser.getIpaddr());
+        }
+        return token;
     }
 
     /**

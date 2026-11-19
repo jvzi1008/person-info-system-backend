@@ -66,12 +66,15 @@ D:\jdk21\jdk-21.0.2\bin\java.exe -jar ruoyi-admin\target\ruoyi-admin.jar --serve
 | 用途 | 值 |
 |---|---|
 | 管理员 | `admin` / `admin123`（登录要验证码） |
-| 外部测试账号 | `test001` / `Test1234` |
-| 统一登录 | `POST /api/unified/login` |
-| 外部登录 | `POST /api/ext/auth/login`，之后带 `X-Ext-Token` |
-| 外部比对 | `POST /api/ext/compare/person` |
-| 管理员比对 | `POST /compare/person`（需 `compare:person:query`） |
+| 普通用户测试账号 | `test001` / `Test1234` |
+| 统一登录 | `POST /login`（所有人同一套 JWT，`Admin-Token`） |
+| 注册 | `POST /register`（邮箱+密码+验证码，注册后 `audit_status=0` 待审核） |
+| 审核 | `PUT /system/user/audit`（`system:user:audit`，1通过 2驳回） |
+| 人员比对 | `POST /compare/person`（普通用户与管理员共用，`compare:person:query`） |
+| 我的 IP | `GET/POST /compare/my/ip`、`DELETE /compare/my/ip/{id}`（仅本人） |
 | 日志导出 | `POST /compare/accessLog/export` |
+
+> 外部 `X-Ext-Token` 与 `/api/ext/**` 已删除；普通用户角色 `normal` 只能访问 `/ext/*` 与比对接口。
 
 ## 改动流程（必须遵守）
 

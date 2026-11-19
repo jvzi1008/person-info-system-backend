@@ -54,6 +54,30 @@ public class SysUserController extends BaseController
     private ISysPostService postService;
 
     /**
+     * 审核注册用户（1通过 2驳回）
+     */
+    @Log(title = "用户审核", businessType = BusinessType.UPDATE)
+    @PreAuthorize("@ss.hasPermi('system:user:audit')")
+    @PutMapping("/audit")
+    public AjaxResult audit(@RequestBody SysUser user)
+    {
+        if (user.getUserId() == null)
+        {
+            return error("用户ID不能为空");
+        }
+        if (!"1".equals(user.getAuditStatus()) && !"2".equals(user.getAuditStatus()))
+        {
+            return error("审核状态不正确");
+        }
+        if ("2".equals(user.getAuditStatus()) && StringUtils.isEmpty(user.getAuditRemark()))
+        {
+            return error("驳回必须填写原因");
+        }
+        user.setAuditBy(getUsername());
+        return toAjax(userService.auditUser(user));
+    }
+
+    /**
      * 获取用户列表
      */
     @PreAuthorize("@ss.hasPermi('system:user:list')")

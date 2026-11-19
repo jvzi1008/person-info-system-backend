@@ -103,7 +103,7 @@ public class SecurityConfig
                 permitAllUrl.getUrls().forEach(url -> requests.requestMatchers(url).permitAll());
                 // 登录、注册、验证码，以及统一登录/外部用户接口允许匿名访问
                 // 外部接口的认证由 ExtAuthInterceptor 负责
-                requests.requestMatchers("/login", "/register", "/captchaImage", "/api/unified/**", "/api/ext/**").permitAll()
+                requests.requestMatchers("/login", "/register", "/captchaImage").permitAll()
                     // 静态资源，可匿名访问
                     .requestMatchers(HttpMethod.GET, "/", "/*.html", "/**/*.html", "/**/*.css", "/**/*.js", "/profile/**").permitAll()
                     .requestMatchers("/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**", "/druid/**").permitAll()

@@ -7,11 +7,13 @@ import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.compare.domain.BizIpAuth;
 import com.ruoyi.compare.service.IBizIpAuthService;
+import com.ruoyi.system.service.ISysUserService;
 
 @RestController
 @RequestMapping("/compare/ipAuth")
@@ -20,12 +22,28 @@ public class BizIpAuthController extends BaseController {
     @Autowired
     private IBizIpAuthService bizIpAuthService;
 
+    @Autowired
+    private ISysUserService sysUserService;
+
     @PreAuthorize("@ss.hasPermi('compare:ipAuth:list')")
     @GetMapping("/list")
     public TableDataInfo list(BizIpAuth bizIpAuth) {
         startPage();
         List<BizIpAuth> list = bizIpAuthService.selectBizIpAuthList(bizIpAuth);
         return getDataTable(list);
+    }
+
+    /**
+     * IP 授权页面的用户下拉：只返回已通过审核的普通用户
+     */
+    @PreAuthorize("@ss.hasPermi('compare:ipAuth:list')")
+    @GetMapping("/userOptions")
+    public AjaxResult userOptions() {
+        SysUser query = new SysUser();
+        query.setUserType("01");
+        query.setStatus("0");
+        query.getParams().put("dataScope", "");
+        return success(sysUserService.selectUserList(query));
     }
 
     @PreAuthorize("@ss.hasPermi('compare:ipAuth:query')")

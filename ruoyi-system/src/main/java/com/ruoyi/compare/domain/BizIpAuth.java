@@ -22,6 +22,14 @@ public class BizIpAuth extends BaseEntity {
 
     private Integer maxQps;
 
+    private String auditStatus;
+    private String auditBy;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private java.util.Date auditTime;
+
+    private String auditRemark;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -48,6 +56,18 @@ public class BizIpAuth extends BaseEntity {
 
     public Integer getMaxQps() { return maxQps; }
     public void setMaxQps(Integer maxQps) { this.maxQps = maxQps; }
+
+    public String getAuditStatus() { return auditStatus; }
+    public void setAuditStatus(String auditStatus) { this.auditStatus = auditStatus; }
+
+    public String getAuditBy() { return auditBy; }
+    public void setAuditBy(String auditBy) { this.auditBy = auditBy; }
+
+    public java.util.Date getAuditTime() { return auditTime; }
+    public void setAuditTime(java.util.Date auditTime) { this.auditTime = auditTime; }
+
+    public String getAuditRemark() { return auditRemark; }
+    public void setAuditRemark(String auditRemark) { this.auditRemark = auditRemark; }
 
     @Override
     public String toString() {

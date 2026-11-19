@@ -11,6 +11,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="sourceType"    column="source_type"    />
         <result property="authType"      column="auth_type"      />
         <result property="status"        column="status"         />
+        <result property="auditStatus"   column="audit_status"   />
+        <result property="auditBy"       column="audit_by"       />
+        <result property="auditTime"     column="audit_time"     />
+        <result property="auditRemark"   column="audit_remark"   />
         <result property="effectiveTime" column="effective_time" />
         <result property="expireTime"    column="expire_time"    />
         <result property="maxQps"        column="max_qps"        />
@@ -23,6 +27,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <sql id="selectBizIpAuthVo">
         select id, user_id, ip_address, source_type, auth_type, status,
+               audit_status, audit_by, audit_time, audit_remark,
                effective_time, expire_time, max_qps, create_by, create_time,
                update_by, update_time, remark
         from biz_ip_auth
@@ -59,6 +64,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectBizIpAuthVo"/>
         where user_id = #{userId}
           and status = '0'
+          and audit_status = '1'
           and (effective_time is null or effective_time &lt;= now())
           and (expire_time is null or expire_time &gt;= now())
         order by id
@@ -74,9 +80,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertBizIpAuth" parameterType="com.ruoyi.compare.domain.BizIpAuth" useGeneratedKeys="true" keyProperty="id">
         insert into biz_ip_auth (
             user_id, ip_address, source_type, auth_type, status,
+            audit_status, audit_by, audit_time, audit_remark,
             effective_time, expire_time, max_qps, create_by, create_time, remark
         ) values (
             #{userId}, #{ipAddress}, #{sourceType}, #{authType}, #{status},
+            #{auditStatus}, #{auditBy}, #{auditTime}, #{auditRemark},
             #{effectiveTime}, #{expireTime}, #{maxQps}, #{createBy}, #{createTime}, #{remark}
         )
     </insert>
@@ -89,6 +97,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="sourceType != null and sourceType != ''">source_type = #{sourceType},</if>
             <if test="authType != null and authType != ''">auth_type = #{authType},</if>
             <if test="status != null and status != ''">status = #{status},</if>
+            <if test="auditStatus != null and auditStatus != ''">audit_status = #{auditStatus},</if>
+            <if test="auditBy != null and auditBy != ''">audit_by = #{auditBy},</if>
+            <if test="auditTime != null">audit_time = #{auditTime},</if>
+            <if test="auditRemark != null">audit_remark = #{auditRemark},</if>
             <if test="effectiveTime != null">effective_time = #{effectiveTime},</if>
             <if test="expireTime != null">expire_time = #{expireTime},</if>
             <if test="maxQps != null">max_qps = #{maxQps},</if>

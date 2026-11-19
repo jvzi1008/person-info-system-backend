@@ -62,6 +62,24 @@ public class SysUser extends BaseEntity
     @Excel(name = "账号状态", readConverterExp = "0=正常,1=停用")
     private String status;
 
+    /** 用户类型（00系统用户 01普通用户） */
+    @Excel(name = "用户类型", readConverterExp = "00=系统用户,01=普通用户")
+    private String userType;
+
+    /** 审核状态（0待审核 1通过 2驳回） */
+    @Excel(name = "审核状态", readConverterExp = "0=待审核,1=通过,2=驳回")
+    private String auditStatus;
+
+    /** 审核人 */
+    private String auditBy;
+
+    /** 审核时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date auditTime;
+
+    /** 审核意见 */
+    private String auditRemark;
+
     /** 删除标志（0代表存在 2代表删除） */
     private String delFlag;
 
@@ -145,7 +163,7 @@ public class SysUser extends BaseEntity
 
     @Xss(message = "用户账号不能包含脚本字符")
     @NotBlank(message = "用户账号不能为空")
-    @Size(min = 0, max = 30, message = "用户账号长度不能超过30个字符")
+    @Size(min = 0, max = 64, message = "用户账号长度不能超过64个字符")
     public String getUserName()
     {
         return userName;
@@ -218,6 +236,56 @@ public class SysUser extends BaseEntity
     public void setStatus(String status)
     {
         this.status = status;
+    }
+
+    public String getUserType()
+    {
+        return userType;
+    }
+
+    public void setUserType(String userType)
+    {
+        this.userType = userType;
+    }
+
+    public String getAuditStatus()
+    {
+        return auditStatus;
+    }
+
+    public void setAuditStatus(String auditStatus)
+    {
+        this.auditStatus = auditStatus;
+    }
+
+    public String getAuditBy()
+    {
+        return auditBy;
+    }
+
+    public void setAuditBy(String auditBy)
+    {
+        this.auditBy = auditBy;
+    }
+
+    public Date getAuditTime()
+    {
+        return auditTime;
+    }
+
+    public void setAuditTime(Date auditTime)
+    {
+        this.auditTime = auditTime;
+    }
+
+    public String getAuditRemark()
+    {
+        return auditRemark;
+    }
+
+    public void setAuditRemark(String auditRemark)
+    {
+        this.auditRemark = auditRemark;
     }
 
     public String getDelFlag()

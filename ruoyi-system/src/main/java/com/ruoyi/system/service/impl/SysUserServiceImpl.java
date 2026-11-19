@@ -282,6 +282,55 @@ public class SysUserServiceImpl implements ISysUserService
         return userMapper.insertUser(user) > 0;
     }
 
+    @Override
+    @Transactional
+    public int auditUser(SysUser user)
+    {
+        SysUser update = new SysUser();
+        update.setUserId(user.getUserId());
+        update.setAuditStatus(user.getAuditStatus());
+        update.setAuditBy(user.getAuditBy());
+        update.setAuditTime(new java.util.Date());
+        update.setAuditRemark(user.getAuditRemark());
+        update.setUpdateBy(user.getAuditBy());
+        if ("1".equals(user.getAuditStatus()))
+        {
+            update.setStatus("0");
+        }
+        int rows = userMapper.updateUser(update);
+
+        if (rows > 0 && "1".equals(user.getAuditStatus()))
+        {
+            SysUser exist = userMapper.selectUserById(user.getUserId());
+            boolean bound = false;
+            if (exist != null && exist.getRoles() != null)
+            {
+                for (SysRole r : exist.getRoles())
+                {
+                    if ("normal".equals(r.getRoleKey()))
+                    {
+                        bound = true;
+                        break;
+                    }
+                }
+            }
+            if (!bound)
+            {
+                SysRole roleQuery = new SysRole();
+                roleQuery.setRoleKey("normal");
+                java.util.List<SysRole> roles = roleMapper.selectRoleList(roleQuery);
+                if (roles != null && !roles.isEmpty())
+                {
+                    com.ruoyi.system.domain.SysUserRole ur = new com.ruoyi.system.domain.SysUserRole();
+                    ur.setUserId(user.getUserId());
+                    ur.setRoleId(roles.get(0).getRoleId());
+                    userRoleMapper.batchUserRole(java.util.Collections.singletonList(ur));
+                }
+            }
+        }
+        return rows;
+    }
+
     /**
      * 修改保存用户信息
      * 
