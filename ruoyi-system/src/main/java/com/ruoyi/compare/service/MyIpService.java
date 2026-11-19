@@ -42,6 +42,18 @@ public class MyIpService {
             throw new ExtAuthException(400, "每个用户最多绑定" + MAX_IPS_PER_USER + "个有效IP");
         }
 
+        BizIpAuth query = new BizIpAuth();
+        query.setUserId(userId);
+        int pending = 0;
+        for (BizIpAuth item : bizIpAuthService.selectBizIpAuthList(query)) {
+            if ("0".equals(item.getAuditStatus())) {
+                pending++;
+            }
+        }
+        if (pending >= 3) {
+            throw new ExtAuthException(400, "待审核的 IP 最多 3 条，请等待管理员处理");
+        }
+
         if (bizIpAuthService.selectByUserIdAndIp(userId, ip) != null) {
             throw new ExtAuthException(409, "该IP已绑定");
         }
@@ -52,10 +64,8 @@ public class MyIpService {
         auth.setSourceType("2");
         auth.setAuthType("1");
         auth.setStatus("0");
-        auth.setAuditStatus("1");
-        auth.setAuditBy(loginName);
-        auth.setAuditTime(new Date());
-        auth.setAuditRemark("用户自助添加");
+        auth.setAuditStatus("0");
+        auth.setAuditRemark("用户自助添加，待管理员审核");
         auth.setEffectiveTime(body.getEffectiveTime() == null ? new Date() : body.getEffectiveTime());
         auth.setExpireTime(body.getExpireTime());
         auth.setMaxQps(body.getMaxQps() == null ? 20 : body.getMaxQps());

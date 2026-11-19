@@ -31,7 +31,7 @@ public class MyIpController extends BaseController {
     @PostMapping
     public AjaxResult add(@RequestBody ExtAddIpBody body) {
         myIpService.add(getUserId(), getUsername(), body);
-        return success("IP添加成功");
+        return success("IP已提交，待管理员审核");
     }
 
     @DeleteMapping("/{id}")
