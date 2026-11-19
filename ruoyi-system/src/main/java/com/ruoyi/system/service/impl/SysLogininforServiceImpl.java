@@ -49,6 +49,12 @@ public class SysLogininforServiceImpl implements ISysLogininforService
      * @return 结果
      */
     @Override
+    public List<SysLogininfor> selectMyLogininforList(SysLogininfor logininfor)
+    {
+        return logininforMapper.selectLogininforListByUserNameExact(logininfor);
+    }
+
+    @Override
     public int deleteLogininforByIds(Long[] infoIds)
     {
         return logininforMapper.deleteLogininforByIds(infoIds);

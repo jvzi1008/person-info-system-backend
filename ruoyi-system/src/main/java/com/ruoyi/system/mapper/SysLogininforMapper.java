@@ -26,6 +26,14 @@ public interface SysLogininforMapper
     public List<SysLogininfor> selectLogininforList(SysLogininfor logininfor);
 
     /**
+     * 按账号精确查询登录日志（用于普通用户查看自己的登录记录）
+     *
+     * @param logininfor 访问日志对象（userName 为精确值）
+     * @return 登录记录集合
+     */
+    public List<SysLogininfor> selectLogininforListByUserNameExact(SysLogininfor logininfor);
+
+    /**
      * 批量删除系统登录日志
      * 
      * @param infoIds 需要删除的登录日志ID

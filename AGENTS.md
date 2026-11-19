@@ -72,6 +72,7 @@ D:\jdk21\jdk-21.0.2\bin\java.exe -jar ruoyi-admin\target\ruoyi-admin.jar --serve
 | 审核 | `PUT /system/user/audit`（`system:user:audit`，1通过 2驳回） |
 | 人员比对 | `POST /compare/person`（普通用户与管理员共用，`compare:person:query`） |
 | 我的 IP | `GET/POST /compare/my/ip`、`DELETE /compare/my/ip/{id}`（仅本人） |
+| 我的登录日志 | `GET /compare/my/loginLog`（仅本人，精确匹配；前端 `/ext/loginLog`） |
 | 日志导出 | `POST /compare/accessLog/export` |
 
 > 外部 `X-Ext-Token` 与 `/api/ext/**` 已删除；普通用户角色 `normal` 只能访问 `/ext/*` 与比对接口。
