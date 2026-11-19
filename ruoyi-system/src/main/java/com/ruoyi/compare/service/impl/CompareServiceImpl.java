@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
@@ -56,6 +57,14 @@ public class CompareServiceImpl implements ICompareService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    /** 数据源：prod=正式表，test=测试表 xsxj_xs_test / xsxj_xs_test_result */
+    @Value("${compare.dataset:prod}")
+    private String dataset;
+
+    /** 仅有转学记录、无学生结果时，是否视为在读 */
+    @Value("${compare.transfer-as-inschool:true}")
+    private boolean transferAsInSchool;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public CompareResult compare(CompareQueryBody body,
@@ -81,9 +90,9 @@ public class CompareServiceImpl implements ICompareService {
         }
 
         List<StudentResultRow> studentRows = dedupStudents(
-                bizCompareMapper.selectStudentResultByIdNo(idNo));
+                bizCompareMapper.selectStudentResultByIdNo(idNo, dataset));
         List<TransferRow> transferRows = dedupTransfers(
-                bizCompareMapper.selectTransferByIdNo(idNo));
+                bizCompareMapper.selectTransferByIdNo(idNo, dataset));
 
         boolean hasPositive = false;
         boolean hasNegative = false;
@@ -100,7 +109,7 @@ public class CompareServiceImpl implements ICompareService {
             } else if (KNOWN_NEGATIVE_STATUS.contains(status)) {
                 hasNegative = true;
             } else {
-                hasNegative = true;
+                // 未知状态只标记“无法判断”，不参与冲突判定
                 unknownStatus = true;
             }
         }
@@ -174,9 +183,12 @@ public class CompareServiceImpl implements ICompareService {
             queryStatus = "MATCHED";
         }
 
+        boolean transferOnly = studentRows.isEmpty() && !transferRows.isEmpty();
+        boolean inSchoolByTransfer = transferOnly && transferAsInSchool;
+
         String inSchoolStatus;
         if (studentRows.isEmpty()) {
-            inSchoolStatus = "UNKNOWN";
+            inSchoolStatus = inSchoolByTransfer ? "YES" : "UNKNOWN";
         } else if (conflict) {
             inSchoolStatus = "CONFLICT";
         } else if (hasPositive) {
@@ -189,7 +201,7 @@ public class CompareServiceImpl implements ICompareService {
 
         List<String> reviewReasons = new ArrayList<>();
         if (!noRows) {
-            if (studentRows.isEmpty() && !transferRows.isEmpty()) {
+            if (transferOnly && !inSchoolByTransfer) {
                 reviewReasons.add("TRANSFER_ONLY");
             }
             if (conflict) {
@@ -249,7 +261,10 @@ public class CompareServiceImpl implements ICompareService {
         } else if (unknownStatus) {
             resultCode = "SUCCESS";
             resultMsg = "存在未知在校状态，建议人工复核";
-        } else if (studentRows.isEmpty()) {
+        } else if (transferOnly && inSchoolByTransfer) {
+            resultCode = "SUCCESS";
+            resultMsg = "未匹配到学生结果，依据转学记录判定为在读";
+        } else if (transferOnly) {
             resultCode = "TRANSFER_ONLY";
             resultMsg = "仅匹配到转学记录，未匹配到学生结果，建议人工复核";
         } else if ("NO".equals(targetStudentStatus)) {
@@ -383,7 +398,11 @@ public class CompareServiceImpl implements ICompareService {
         if (StringUtils.isEmpty(name)) {
             return null;
         }
-        return name.replace("\"", "").trim();
+        // 去掉引号、半角/全角空白，避免“杨 澍 涵”被误判为姓名不一致
+        String cleaned = name.replace("\"", "")
+                .replace("\u3000", "")
+                .replaceAll("\\s+", "");
+        return StringUtils.isEmpty(cleaned) ? null : cleaned;
     }
 
     private String trim(String value) {

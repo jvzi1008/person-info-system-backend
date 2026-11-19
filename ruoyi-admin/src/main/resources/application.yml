@@ -131,8 +131,13 @@ springdoc:
       paths-to-match: '/**'
       packages-to-scan: com.ruoyi.web.controller
 
-# 比对访问日志归档
+# 人员信息比对
 compare:
+  # 数据源：prod=正式表（xsxj_xs_*_result / xsxj_xs_zxxx_temp）
+  #         test=测试表（xsxj_xs_test / xsxj_xs_test_result）
+  dataset: prod
+  # 仅有转学记录、无学生结果时，是否视为在读
+  transfer-as-inschool: true
   log:
     # 是否启用定时归档
     enabled: true

@@ -7,7 +7,9 @@ import com.ruoyi.compare.domain.vo.TransferRow;
 
 public interface BizCompareMapper {
 
-    List<StudentResultRow> selectStudentResultByIdNo(@Param("idNo") String idNo);
+    List<StudentResultRow> selectStudentResultByIdNo(@Param("idNo") String idNo,
+                                                     @Param("dataset") String dataset);
 
-    List<TransferRow> selectTransferByIdNo(@Param("idNo") String idNo);
+    List<TransferRow> selectTransferByIdNo(@Param("idNo") String idNo,
+                                           @Param("dataset") String dataset);
 }
