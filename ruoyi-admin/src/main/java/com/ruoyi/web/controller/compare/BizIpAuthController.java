@@ -43,6 +43,8 @@ public class BizIpAuthController extends BaseController {
         SysUser query = new SysUser();
         query.setUserType("01");
         query.setStatus("0");
+        // 只列已通过审核的普通用户（pendingUser 无法登录，无需分配 IP）
+        query.setAuditStatus("1");
         query.getParams().put("dataScope", "");
         return success(sysUserService.selectUserList(query));
     }
