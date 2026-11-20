@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import com.ruoyi.common.annotation.RateLimiter;
 import com.ruoyi.common.enums.LimitType;
 import com.ruoyi.common.exception.ServiceException;
+import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.ip.IpUtils;
 
@@ -79,6 +80,20 @@ public class RateLimiterAspect
         if (rateLimiter.limitType() == LimitType.IP)
         {
             stringBuffer.append(IpUtils.getIpAddr()).append("-");
+        }
+        else if (rateLimiter.limitType() == LimitType.USER)
+        {
+            // 按登录用户限流，避免同一出口 IP 下的多个用户互相影响；取不到用户时退化为 IP
+            String userKey = null;
+            try
+            {
+                userKey = String.valueOf(SecurityUtils.getUserId());
+            }
+            catch (Exception e)
+            {
+                userKey = IpUtils.getIpAddr();
+            }
+            stringBuffer.append(userKey).append("-");
         }
         MethodSignature signature = (MethodSignature) point.getSignature();
         Method method = signature.getMethod();

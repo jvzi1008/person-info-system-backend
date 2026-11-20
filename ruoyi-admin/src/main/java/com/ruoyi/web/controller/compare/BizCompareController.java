@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.ruoyi.common.annotation.RateLimiter;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.enums.LimitType;
 import com.ruoyi.compare.domain.dto.CompareQueryBody;
 import com.ruoyi.compare.domain.vo.CompareResult;
 import com.ruoyi.compare.service.ICompareService;
@@ -22,6 +24,7 @@ public class BizCompareController extends BaseController {
     private ICompareService compareService;
 
     @PreAuthorize("@ss.hasPermi('compare:person:query')")
+    @RateLimiter(time = 60, count = 30, limitType = LimitType.USER)
     @PostMapping
     public AjaxResult compare(@RequestBody CompareQueryBody body, HttpServletRequest request) {
         CompareResult result = compareService.compare(
