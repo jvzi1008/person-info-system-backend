@@ -68,5 +68,16 @@ BEGIN
 END$$
 DELIMITER ;
 
-CALL `p1_migrate_biz_users`();
+-- 仅当旧表 biz_ip_user 存在时才执行迁移；新库自动跳过
+SET @has_legacy_table := (
+  SELECT COUNT(*) FROM information_schema.TABLES
+  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'biz_ip_user'
+);
+SET @migrate_sql := IF(@has_legacy_table > 0,
+  'CALL p1_migrate_biz_users()',
+  'SELECT ''biz_ip_user 不存在，跳过存量账号迁移'' AS msg');
+PREPARE migrate_stmt FROM @migrate_sql;
+EXECUTE migrate_stmt;
+DEALLOCATE PREPARE migrate_stmt;
+
 DROP PROCEDURE IF EXISTS `p1_migrate_biz_users`;
