@@ -163,8 +163,33 @@ public class SysUserController extends BaseController
             return error("新增用户'" + user.getUserName() + "'失败，邮箱账号已存在");
         }
         user.setCreateBy(getUsername());
+        // 未指定用户类型时：分配了普通用户角色则视为普通用户，否则按系统用户
+        // 普通用户才会走外部界面，并在首次登录时自动绑定 IP
+        if (StringUtils.isEmpty(user.getUserType()))
+        {
+            user.setUserType(resolveUserType(user.getRoleIds()));
+        }
         user.setPassword(SecurityUtils.encryptPassword(user.getPassword()));
         return toAjax(userService.insertUser(user));
+    }
+
+    /**
+     * 根据角色推断用户类型：包含 normal 角色则为普通用户（01），否则系统用户（00）
+     */
+    private String resolveUserType(Long[] roleIds)
+    {
+        if (roleIds != null)
+        {
+            for (Long roleId : roleIds)
+            {
+                SysRole role = roleService.selectRoleById(roleId);
+                if (role != null && "normal".equals(role.getRoleKey()))
+                {
+                    return "01";
+                }
+            }
+        }
+        return "00";
     }
 
     /**
