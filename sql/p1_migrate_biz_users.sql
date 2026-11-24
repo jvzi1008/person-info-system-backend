@@ -38,17 +38,19 @@ BEGIN
     IF new_id IS NULL THEN
       INSERT INTO sys_user
         (dept_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password,
-         status, audit_status, audit_by, audit_time, audit_remark, del_flag, create_by, create_time, remark)
+         status, audit_status, audit_by, audit_time, audit_remark, del_flag,
+         pwd_update_date, create_by, create_time, remark)
       VALUES
         (NULL, v_login, LEFT(COALESCE(NULLIF(v_name, ''), v_login), 30), '01',
          LEFT(COALESCE(NULLIF(v_email, ''), IF(v_login LIKE '%@%', v_login, '')), 50),
          '', '2', '', v_pwd,
          COALESCE(NULLIF(v_status, ''), '0'), '1', 'migrate', NOW(), '存量迁移', COALESCE(NULLIF(v_del, ''), '0'),
-         'migrate', NOW(), '由 biz_ip_user 迁移');
+         NOW(), 'migrate', NOW(), '由 biz_ip_user 迁移');
       SET new_id = LAST_INSERT_ID();
     ELSE
       UPDATE sys_user
          SET user_type = '01', audit_status = '1', password = v_pwd,
+             pwd_update_date = IFNULL(pwd_update_date, NOW()),
              del_flag = COALESCE(NULLIF(v_del, ''), '0')
        WHERE user_id = new_id;
     END IF;
@@ -73,9 +75,10 @@ SET @has_legacy_table := (
   SELECT COUNT(*) FROM information_schema.TABLES
   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'biz_ip_user'
 );
+-- 新库没有旧表时静默跳过（不输出结果集，避免命令行噪音）
 SET @migrate_sql := IF(@has_legacy_table > 0,
   'CALL p1_migrate_biz_users()',
-  'SELECT ''biz_ip_user 不存在，跳过存量账号迁移'' AS msg');
+  'SET @migrate_skipped = 1');
 PREPARE migrate_stmt FROM @migrate_sql;
 EXECUTE migrate_stmt;
 DEALLOCATE PREPARE migrate_stmt;

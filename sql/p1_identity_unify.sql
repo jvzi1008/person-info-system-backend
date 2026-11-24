@@ -42,6 +42,19 @@ PREPARE st FROM @s; EXECUTE st; DEALLOCATE PREPARE st;
 -- 存量用户一律视为已通过审核
 UPDATE `sys_user` SET `audit_status` = '1' WHERE `audit_status` IS NULL OR `audit_status` = '';
 
+-- 用户账号扩展为 64 位（普通用户用邮箱作为登录账号）
+-- 若依原表是 varchar(30)，长邮箱会被截断或插入失败
+ALTER TABLE `sys_user`
+  MODIFY COLUMN `user_name` varchar(64) NOT NULL COMMENT '用户账号（普通用户为邮箱）';
+
+-- 开启自助注册（否则注册页会提示"当前系统没有开启注册功能"）
+UPDATE `sys_config` SET `config_value` = 'true'
+WHERE `config_key` = 'sys.account.registerUser';
+
+-- 管理员昵称改为中文（若依默认是"若依"）
+UPDATE `sys_user` SET `nick_name` = '管理员'
+WHERE `user_id` = 1 AND `nick_name` = '若依';
+
 -- =========================================================
 -- 二、biz_ip_auth 增加审核字段（幂等）
 --    P2 引入 IP 审核功能，旧库若已建表则不会自动补列，这里统一处理
