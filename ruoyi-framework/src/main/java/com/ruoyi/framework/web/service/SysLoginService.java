@@ -1,6 +1,8 @@
 package com.ruoyi.framework.web.service;
 
 import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -36,6 +38,8 @@ import com.ruoyi.system.service.ISysUserService;
 @Component
 public class SysLoginService
 {
+    private static final Logger log = LoggerFactory.getLogger(SysLoginService.class);
+
     @Autowired
     private TokenService tokenService;
 
@@ -100,10 +104,18 @@ public class SysLoginService
         recordLoginInfo(loginUser.getUserId());
         // 生成token（createToken 会写入登录 IP）
         String token = tokenService.createToken(loginUser);
-        // 普通用户首次登录自动绑定当前 IP（免审）
+        // 普通用户：首登免审绑定 IP；换网络时自动提交待审记录
         if (loginUser.getUser() != null && "01".equals(loginUser.getUser().getUserType()))
         {
-            normalUserLoginService.bindFirstLoginIp(loginUser.getUserId(), loginUser.getUsername(), loginUser.getIpaddr());
+            try
+            {
+                normalUserLoginService.handleLoginIp(loginUser.getUserId(), loginUser.getUsername(), loginUser.getIpaddr());
+            }
+            catch (Exception e)
+            {
+                // IP 记录失败不能影响登录本身
+                log.warn("登录 IP 变更处理失败：{}", e.getMessage());
+            }
         }
         return token;
     }

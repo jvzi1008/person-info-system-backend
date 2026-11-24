@@ -30,7 +30,9 @@ public class NormalUserWebMvcConfig implements WebMvcConfigurer {
                         "/profile/**",
                         "/v3/api-docs/**",
                         "/swagger-ui/**",
-                        "/druid/**"
+                        "/druid/**",
+                        // 未授权 IP 也要能查看/提交自己的 IP，否则换网络后无法自助申请
+                        "/compare/my/ip/**"
                 );
     }
 }

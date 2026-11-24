@@ -49,13 +49,19 @@ public class NormalUserIpInterceptor implements HandlerInterceptor {
             }
         }
 
+        // 只约束普通用户（user_type=01）；系统用户（00）是内部账号，不走 IP 白名单
+        if (loginUser.getUser() == null || !"01".equals(loginUser.getUser().getUserType()))
+        {
+            return true;
+        }
+
         String currentIp = ExtIpUtils.getClientIp(request);
         if (StringUtils.isEmpty(currentIp) || !currentIp.equals(loginUser.getIpaddr())) {
             return writeJson(response, HttpServletResponse.SC_UNAUTHORIZED, "登录IP已变化，请重新登录");
         }
 
         if (!bizIpAuthService.isIpAuthorized(loginUser.getUserId(), currentIp)) {
-            return writeJson(response, HttpServletResponse.SC_FORBIDDEN, "当前IP未授权");
+            return writeJson(response, HttpServletResponse.SC_FORBIDDEN, "当前IP未授权，请在「我的IP」提交申请或联系管理员");
         }
         return true;
     }
